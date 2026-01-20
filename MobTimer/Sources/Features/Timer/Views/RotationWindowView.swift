@@ -94,8 +94,9 @@ struct RotationWindowView: View {
                 .foregroundStyle(.secondary)
             }
         }
-        .padding(32)
-        .frame(width: 400, height: 380)
+        .padding(.horizontal, 40)
+        .padding(.vertical, 32)
+        .frame(width: 420, height: 400)
         .background(.regularMaterial)
     }
 
