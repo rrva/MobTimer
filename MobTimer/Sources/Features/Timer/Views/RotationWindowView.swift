@@ -198,7 +198,7 @@ struct RotationWindowView: View {
                     Button {
                         viewModel.pause()
                     } label: {
-                        Label("Pause", systemImage: "pause.fill")
+                        Label("Dismiss", systemImage: "xmark")
                             .font(.subheadline.weight(.medium))
                     }
                     .buttonStyle(.plain)
@@ -210,12 +210,27 @@ struct RotationWindowView: View {
                 .opacity(showContent ? 1 : 0)
             }
             .padding(.horizontal, 40)
-            .padding(.top, 72)
-            .padding(.bottom, 32)
+            .padding(.top, 32)
+            .padding(.bottom, 24)
         }
-        .frame(width: 440, height: 560)
+        .frame(width: 420)
         .background(.regularMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 20))
+        .overlay(alignment: .topTrailing) {
+            // Dismiss button (top-right corner)
+            Button {
+                viewModel.pause()
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.title2)
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .padding(12)
+            .keyboardShortcut(.escape, modifiers: [])
+            .help("Dismiss and pause (Esc)")
+        }
         .onAppear {
             currentEncouragement = encouragements.randomElement() ?? encouragements[0]
             isAnimating = true

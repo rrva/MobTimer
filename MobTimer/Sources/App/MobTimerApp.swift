@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 @main
 struct MobTimerApp: App {
@@ -29,14 +30,35 @@ struct MobTimerApp: App {
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)
-        .defaultPosition(.top)
         .windowLevel(.floating)
         .onChange(of: viewModel.showRotationWindow) { _, shouldShow in
             if shouldShow {
                 openWindow(id: "rotation-window")
+                // Position window near top of screen
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    positionRotationWindowAtTop()
+                }
             } else {
                 dismissWindow(id: "rotation-window")
             }
         }
     }
+}
+
+private func positionRotationWindowAtTop() {
+    guard let window = NSApplication.shared.windows.first(where: { $0.title == "Rotation" }) else {
+        return
+    }
+    guard let screen = window.screen ?? NSScreen.main else {
+        return
+    }
+
+    let visibleFrame = screen.visibleFrame
+    let windowSize = window.frame.size
+
+    // Center horizontally, position near top (40pt below menu bar)
+    let x = visibleFrame.midX - windowSize.width / 2
+    let y = visibleFrame.maxY - windowSize.height - 40
+
+    window.setFrameOrigin(CGPoint(x: x, y: y))
 }
