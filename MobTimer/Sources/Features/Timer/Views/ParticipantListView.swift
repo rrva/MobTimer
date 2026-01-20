@@ -51,6 +51,7 @@ struct ParticipantListView: View {
                         isEditing: viewModel.editingParticipantID == participant.id,
                         canMoveUp: index > 0,
                         canMoveDown: index < activeParticipants.count - 1,
+                        showEmailField: viewModel.settings.enableGitCoauthors,
                         onUpdate: { updated in
                             viewModel.updateParticipant(updated)
                         },
@@ -91,13 +92,15 @@ struct ParticipantListView: View {
                             .onSubmit {
                                 addParticipant()
                             }
-                        TextField("Email (optional)", text: $newParticipantEmail)
-                            .textFieldStyle(.plain)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .onSubmit {
-                                addParticipant()
-                            }
+                        if viewModel.settings.enableGitCoauthors {
+                            TextField("Email (optional)", text: $newParticipantEmail)
+                                .textFieldStyle(.plain)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .onSubmit {
+                                    addParticipant()
+                                }
+                        }
                     }
 
                     Button {

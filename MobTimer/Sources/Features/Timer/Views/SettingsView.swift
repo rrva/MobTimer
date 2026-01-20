@@ -14,6 +14,7 @@ struct SettingsView: View {
     @State private var announcementTemplate: String = ""
     @State private var randomizeRotation: Bool = false
     @State private var useSecondsForTesting: Bool = false
+    @State private var enableGitCoauthors: Bool = false
 
     private var isTestingMode: Bool {
         CommandLine.arguments.contains("--testing")
@@ -141,6 +142,63 @@ struct SettingsView: View {
                 .padding(.vertical, 4)
             }
 
+            GroupBox("Integrations") {
+                VStack(alignment: .leading, spacing: 8) {
+                    Toggle("Git co-authors", isOn: $enableGitCoauthors)
+                    if enableGitCoauthors {
+                        Text("Adds email field to participants for Co-Authored-By attribution")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        DisclosureGroup("Setup instructions") {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Active participants are written to:")
+                                    .font(.caption)
+                                Text("~/Library/Application Support/MobTimer/active-mobsters")
+                                    .font(.caption)
+                                    .fontDesign(.monospaced)
+                                    .textSelection(.enabled)
+                                    .foregroundStyle(.secondary)
+
+                                Text("To auto-add co-authors to commits, create a git hook:")
+                                    .font(.caption)
+                                    .padding(.top, 4)
+
+                                Text("""
+                                    1. Create .git/hooks/prepare-commit-msg in your repo
+                                    2. Add this script and make it executable (chmod +x):
+                                    """)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+
+                                Text("""
+                                    #!/bin/bash
+                                    MOBSTERS_FILE="$HOME/Library/Application Support/MobTimer/active-mobsters"
+                                    if [[ -f "$MOBSTERS_FILE" ]] && [[ -s "$MOBSTERS_FILE" ]]; then
+                                        if ! grep -q "^Co-Authored-By:" "$1" 2>/dev/null; then
+                                            echo "" >> "$1"
+                                            cat "$MOBSTERS_FILE" >> "$1"
+                                        fi
+                                    fi
+                                    """)
+                                    .font(.caption)
+                                    .fontDesign(.monospaced)
+                                    .textSelection(.enabled)
+                                    .padding(8)
+                                    .background(Color.secondary.opacity(0.1))
+                                    .clipShape(RoundedRectangle(cornerRadius: 4))
+
+                                Text("For global use across all repos, set core.hooksPath in your git config.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .font(.caption)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+
             GroupBox("Developer") {
                 VStack(alignment: .leading, spacing: 8) {
                     Toggle("Testing mode (use seconds)", isOn: $useSecondsForTesting)
@@ -204,6 +262,7 @@ struct SettingsView: View {
         announcementTemplate = settings.announcementTemplate
         randomizeRotation = settings.randomizeRotation
         useSecondsForTesting = settings.useSecondsForTesting
+        enableGitCoauthors = settings.enableGitCoauthors
     }
 
     private func saveSettings() {
@@ -218,7 +277,8 @@ struct SettingsView: View {
                 ? TimerSettings.default.announcementTemplate
                 : announcementTemplate,
             randomizeRotation: randomizeRotation,
-            useSecondsForTesting: useSecondsForTesting
+            useSecondsForTesting: useSecondsForTesting,
+            enableGitCoauthors: enableGitCoauthors
         )
         viewModel.updateSettings(newSettings)
     }
@@ -234,6 +294,7 @@ struct SettingsView: View {
         announcementTemplate = defaults.announcementTemplate
         randomizeRotation = defaults.randomizeRotation
         useSecondsForTesting = defaults.useSecondsForTesting
+        enableGitCoauthors = defaults.enableGitCoauthors
     }
 }
 

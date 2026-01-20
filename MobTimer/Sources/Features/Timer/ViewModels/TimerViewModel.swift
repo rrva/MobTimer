@@ -114,6 +114,7 @@ final class TimerViewModel {
     }
 
     private func updateActiveMobstersFile() {
+        guard settings.enableGitCoauthors else { return }
         Task {
             try? await persistenceService.writeActiveMobsters(participants)
         }

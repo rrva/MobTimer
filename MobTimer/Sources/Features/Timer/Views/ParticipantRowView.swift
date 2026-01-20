@@ -6,6 +6,7 @@ struct ParticipantRowView: View {
     let isEditing: Bool
     var canMoveUp: Bool = false
     var canMoveDown: Bool = false
+    var showEmailField: Bool = false
     let onUpdate: (Participant) -> Void
     let onToggleAway: () -> Void
     let onDelete: () -> Void
@@ -46,10 +47,12 @@ struct ParticipantRowView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     TextField("Name", text: $editedName)
                         .textFieldStyle(.plain)
-                    TextField("Email", text: $editedEmail)
-                        .textFieldStyle(.plain)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    if showEmailField {
+                        TextField("Email", text: $editedEmail)
+                            .textFieldStyle(.plain)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 .onAppear {
                     editedName = participant.name

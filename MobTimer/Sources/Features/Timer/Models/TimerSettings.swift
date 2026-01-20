@@ -10,6 +10,7 @@ struct TimerSettings: Codable, Sendable, Equatable {
     var announcementTemplate: String
     var randomizeRotation: Bool
     var useSecondsForTesting: Bool
+    var enableGitCoauthors: Bool
 
     init(
         rotationDurationMinutes: Int = 5,
@@ -20,7 +21,8 @@ struct TimerSettings: Codable, Sendable, Equatable {
         speakAnnouncement: Bool = true,
         announcementTemplate: String = "Time's up! {name} is now driving.",
         randomizeRotation: Bool = false,
-        useSecondsForTesting: Bool = false
+        useSecondsForTesting: Bool = false,
+        enableGitCoauthors: Bool = false
     ) {
         self.rotationDurationMinutes = rotationDurationMinutes
         self.rotationDurationSeconds = rotationDurationSeconds
@@ -31,6 +33,7 @@ struct TimerSettings: Codable, Sendable, Equatable {
         self.announcementTemplate = announcementTemplate
         self.randomizeRotation = randomizeRotation
         self.useSecondsForTesting = useSecondsForTesting
+        self.enableGitCoauthors = enableGitCoauthors
     }
 
     var effectiveRotationSeconds: Int {
