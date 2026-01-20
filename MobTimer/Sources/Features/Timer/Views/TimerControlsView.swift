@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TimerControlsView: View {
     @Bindable var viewModel: TimerViewModel
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         HStack(spacing: 12) {
@@ -42,6 +43,7 @@ struct TimerControlsView: View {
     private var startButton: some View {
         Button {
             viewModel.start()
+            dismiss()
         } label: {
             Label("Start", systemImage: "play.fill")
         }
@@ -61,6 +63,7 @@ struct TimerControlsView: View {
     private var resumeButton: some View {
         Button {
             viewModel.resume()
+            dismiss()
         } label: {
             Label("Resume", systemImage: "play.fill")
         }

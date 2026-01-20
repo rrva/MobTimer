@@ -88,7 +88,10 @@ struct ParticipantListView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         TextField("Name", text: $newParticipantName)
                             .textFieldStyle(.plain)
-                        TextField("Email", text: $newParticipantEmail)
+                            .onSubmit {
+                                addParticipant()
+                            }
+                        TextField("Email (optional)", text: $newParticipantEmail)
                             .textFieldStyle(.plain)
                             .font(.caption)
                             .foregroundStyle(.secondary)
