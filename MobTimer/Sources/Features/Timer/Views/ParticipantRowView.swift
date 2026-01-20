@@ -7,6 +7,8 @@ struct ParticipantRowView: View {
     var isDropTarget: Bool = false
     var canMoveUp: Bool = false
     var canMoveDown: Bool = false
+    var intellijIntegrationEnabled: Bool = false
+    var availableKeymaps: [String] = IntelliJService.commonKeymaps
     let onUpdate: (Participant) -> Void
     let onToggleAway: () -> Void
     let onDelete: () -> Void
@@ -16,6 +18,7 @@ struct ParticipantRowView: View {
     var onMoveDown: (() -> Void)?
 
     @State private var editedName: String = ""
+    @State private var selectedKeymap: String = ""
 
     var body: some View {
         HStack(spacing: 8) {
@@ -43,33 +46,65 @@ struct ParticipantRowView: View {
             }
 
             if isEditing {
-                TextField("Name", text: $editedName)
-                    .textFieldStyle(.plain)
-                    .onSubmit {
-                        commitEdit()
-                    }
-                    .onAppear {
-                        editedName = participant.name
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        TextField("Name", text: $editedName)
+                            .textFieldStyle(.plain)
+                            .onSubmit {
+                                commitEdit()
+                            }
+
+                        Button {
+                            commitEdit()
+                        } label: {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                        }
+                        .buttonStyle(.plain)
+
+                        Button {
+                            onEndEditing()
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(.secondary)
+                        }
+                        .buttonStyle(.plain)
                     }
 
-                Button {
-                    commitEdit()
-                } label: {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                    if intellijIntegrationEnabled {
+                        HStack {
+                            Text("Keymap:")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Picker("", selection: $selectedKeymap) {
+                                Text("None").tag("")
+                                ForEach(availableKeymaps, id: \.self) { keymap in
+                                    Text(keymap).tag(keymap)
+                                }
+                            }
+                            .labelsHidden()
+                            .pickerStyle(.menu)
+                            .frame(maxWidth: 150)
+                        }
+                    }
                 }
-                .buttonStyle(.plain)
-
-                Button {
-                    onEndEditing()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
+                .onAppear {
+                    editedName = participant.name
+                    selectedKeymap = participant.intellijKeymap ?? ""
                 }
-                .buttonStyle(.plain)
             } else {
                 Text(participant.name)
                     .foregroundStyle(participant.isAway ? .secondary : .primary)
+
+                if intellijIntegrationEnabled, let keymap = participant.intellijKeymap {
+                    Text(abbreviateKeymap(keymap))
+                        .font(.caption2)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 1)
+                        .background(.blue.opacity(0.15))
+                        .foregroundStyle(.blue)
+                        .clipShape(Capsule())
+                }
 
                 Spacer()
 
@@ -135,8 +170,29 @@ struct ParticipantRowView: View {
 
         var updated = participant
         updated.name = editedName.trimmingCharacters(in: .whitespaces)
+        updated.intellijKeymap = selectedKeymap.isEmpty ? nil : selectedKeymap
         onUpdate(updated)
         onEndEditing()
+    }
+
+    private func abbreviateKeymap(_ keymap: String) -> String {
+        switch keymap {
+        case "macOS": return "macOS"
+        case "macOS System Shortcuts": return "macSys"
+        case "IntelliJ IDEA Classic": return "IJ"
+        case "Eclipse": return "Ecl"
+        case "Eclipse (macOS)": return "Ecl-M"
+        case "Visual Studio": return "VS"
+        case "VSCode": return "VSC"
+        case "VSCode (macOS)": return "VSC-M"
+        case "Sublime Text": return "Subl"
+        case "Sublime Text (macOS)": return "Subl-M"
+        case "Emacs": return "Emacs"
+        case "NetBeans": return "NB"
+        default:
+            // For unknown keymaps, take first 6 characters
+            return String(keymap.prefix(6))
+        }
     }
 }
 

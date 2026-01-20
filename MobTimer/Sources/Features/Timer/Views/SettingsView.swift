@@ -12,6 +12,16 @@ struct SettingsView: View {
     @State private var playSound: Bool = true
     @State private var speakAnnouncement: Bool = true
     @State private var announcementTemplate: String = ""
+    @State private var intellijIntegrationEnabled: Bool = false
+    @State private var intellijPluginURL: String = "http://localhost:8765"
+    @State private var intellijConnectionStatus: ConnectionStatus = .unknown
+
+    enum ConnectionStatus {
+        case unknown
+        case checking
+        case connected
+        case disconnected
+    }
 
     private var isTestingMode: Bool {
         TimerViewModel.isTestingMode
@@ -135,6 +145,48 @@ struct SettingsView: View {
                 .padding(.vertical, 4)
             }
 
+            GroupBox("IntelliJ Integration") {
+                VStack(alignment: .leading, spacing: 8) {
+                    Toggle("Enable keymap switching", isOn: $intellijIntegrationEnabled)
+
+                    if intellijIntegrationEnabled {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Plugin URL:")
+                                .font(.caption)
+                            HStack {
+                                TextField("URL", text: $intellijPluginURL)
+                                    .textFieldStyle(.roundedBorder)
+
+                                Button {
+                                    testConnection()
+                                } label: {
+                                    switch intellijConnectionStatus {
+                                    case .unknown:
+                                        Text("Test")
+                                    case .checking:
+                                        ProgressView()
+                                            .scaleEffect(0.6)
+                                    case .connected:
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundStyle(.green)
+                                    case .disconnected:
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundStyle(.red)
+                                    }
+                                }
+                                .buttonStyle(.bordered)
+                                .disabled(intellijConnectionStatus == .checking)
+                            }
+                        }
+
+                        Text("Install the MobTimer plugin in IntelliJ IDEA to enable automatic keymap switching when drivers rotate. Set each participant's preferred keymap by editing their entry.")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+
             Divider()
 
             HStack {
@@ -184,6 +236,8 @@ struct SettingsView: View {
         playSound = settings.playSoundOnRotation
         speakAnnouncement = settings.speakAnnouncement
         announcementTemplate = settings.announcementTemplate
+        intellijIntegrationEnabled = settings.intellijIntegrationEnabled
+        intellijPluginURL = settings.intellijPluginURL
     }
 
     private func saveSettings() {
@@ -196,7 +250,9 @@ struct SettingsView: View {
             speakAnnouncement: speakAnnouncement,
             announcementTemplate: announcementTemplate.isEmpty
                 ? TimerSettings.default.announcementTemplate
-                : announcementTemplate
+                : announcementTemplate,
+            intellijIntegrationEnabled: intellijIntegrationEnabled,
+            intellijPluginURL: intellijPluginURL
         )
         viewModel.updateSettings(newSettings)
     }
@@ -210,6 +266,18 @@ struct SettingsView: View {
         playSound = defaults.playSoundOnRotation
         speakAnnouncement = defaults.speakAnnouncement
         announcementTemplate = defaults.announcementTemplate
+        intellijIntegrationEnabled = defaults.intellijIntegrationEnabled
+        intellijPluginURL = defaults.intellijPluginURL
+    }
+
+    private func testConnection() {
+        intellijConnectionStatus = .checking
+        Task {
+            let isAvailable = await IntelliJService.shared.isPluginAvailable(baseURL: intellijPluginURL)
+            await MainActor.run {
+                intellijConnectionStatus = isAvailable ? .connected : .disconnected
+            }
+        }
     }
 }
 

@@ -20,6 +20,7 @@ final class TimerViewModel {
     private let notificationService = NotificationService.shared
     private let speechService = SpeechService.shared
     private let persistenceService = PersistenceService.shared
+    private let intellijService = IntelliJService.shared
 
     static var isTestingMode: Bool {
         CommandLine.arguments.contains("--testing") || CommandLine.arguments.contains("-testing")
@@ -342,6 +343,14 @@ final class TimerViewModel {
                 await speechService.speakRotationAnnouncement(
                     template: settings.announcementTemplate,
                     driverName: driver.name
+                )
+            }
+
+            if settings.intellijIntegrationEnabled,
+               let keymapName = driver.intellijKeymap {
+                try? await intellijService.setKeymap(
+                    name: keymapName,
+                    baseURL: settings.intellijPluginURL
                 )
             }
         }

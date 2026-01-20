@@ -8,6 +8,8 @@ struct TimerSettings: Codable, Sendable, Equatable {
     var playSoundOnRotation: Bool
     var speakAnnouncement: Bool
     var announcementTemplate: String
+    var intellijIntegrationEnabled: Bool
+    var intellijPluginURL: String
 
     init(
         rotationDurationMinutes: Int = 5,
@@ -16,7 +18,9 @@ struct TimerSettings: Codable, Sendable, Equatable {
         breakDurationMinutes: Int = 10,
         playSoundOnRotation: Bool = true,
         speakAnnouncement: Bool = true,
-        announcementTemplate: String = "Time's up! {name} is now driving."
+        announcementTemplate: String = "Time's up! {name} is now driving.",
+        intellijIntegrationEnabled: Bool = false,
+        intellijPluginURL: String = "http://localhost:8765"
     ) {
         self.rotationDurationMinutes = rotationDurationMinutes
         self.rotationDurationSeconds = rotationDurationSeconds
@@ -25,6 +29,8 @@ struct TimerSettings: Codable, Sendable, Equatable {
         self.playSoundOnRotation = playSoundOnRotation
         self.speakAnnouncement = speakAnnouncement
         self.announcementTemplate = announcementTemplate
+        self.intellijIntegrationEnabled = intellijIntegrationEnabled
+        self.intellijPluginURL = intellijPluginURL
     }
 
     var effectiveRotationSeconds: Int {

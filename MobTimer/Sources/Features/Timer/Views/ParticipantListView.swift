@@ -54,6 +54,7 @@ struct ParticipantListView: View {
                         isDropTarget: false,
                         canMoveUp: index > 0,
                         canMoveDown: index < activeParticipants.count - 1,
+                        intellijIntegrationEnabled: viewModel.settings.intellijIntegrationEnabled,
                         onUpdate: { updated in
                             viewModel.updateParticipant(updated)
                         },

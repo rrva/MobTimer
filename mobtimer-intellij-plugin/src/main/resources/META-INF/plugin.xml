@@ -1,0 +1,35 @@
+<idea-plugin>
+    <id>com.mobtimer.intellij</id>
+    <name>MobTimer Keymap Switcher</name>
+    <version>1.0.0</version>
+    <vendor email="support@mobtimer.local" url="https://github.com/mobtimer">MobTimer</vendor>
+
+    <description><![CDATA[
+        Enables automatic keymap switching when integrated with the MobTimer macOS application.
+        <br><br>
+        This plugin runs a local HTTP server on port 8765 that accepts keymap switching commands
+        from MobTimer when driver rotation occurs.
+        <br><br>
+        <b>Features:</b>
+        <ul>
+            <li>Automatic keymap switching on driver rotation</li>
+            <li>REST API for keymap control</li>
+            <li>Support for all installed IntelliJ keymaps</li>
+        </ul>
+    ]]></description>
+
+    <change-notes><![CDATA[
+        <b>1.0.0</b>
+        <ul>
+            <li>Initial release</li>
+            <li>HTTP API for keymap switching</li>
+        </ul>
+    ]]></change-notes>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <applicationListeners>
+        <listener class="com.mobtimer.intellij.MobTimerPlugin"
+                  topic="com.intellij.ide.AppLifecycleListener"/>
+    </applicationListeners>
+</idea-plugin>

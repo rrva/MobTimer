@@ -6,11 +6,13 @@ struct Participant: Identifiable, Codable, Sendable, Equatable, Hashable {
     let id: UUID
     var name: String
     var isAway: Bool
+    var intellijKeymap: String?
 
-    init(id: UUID = UUID(), name: String, isAway: Bool = false) {
+    init(id: UUID = UUID(), name: String, isAway: Bool = false, intellijKeymap: String? = nil) {
         self.id = id
         self.name = name
         self.isAway = isAway
+        self.intellijKeymap = intellijKeymap
     }
 }
 
