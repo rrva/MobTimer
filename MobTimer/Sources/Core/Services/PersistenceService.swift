@@ -61,4 +61,15 @@ actor PersistenceService {
         let decoder = JSONDecoder()
         return try decoder.decode(TimerSettings.self, from: data)
     }
+
+    func writeActiveMobsters(_ participants: [Participant]) throws {
+        let coAuthorLines = participants
+            .filter { !$0.isAway && !$0.email.isEmpty }
+            .map { participant in
+                "Co-Authored-By: \(participant.name) <\(participant.email)>"
+            }
+        let content = coAuthorLines.joined(separator: "\n")
+        let filePath = applicationSupportDirectory.appendingPathComponent("active-mobsters")
+        try content.write(to: filePath, atomically: true, encoding: .utf8)
+    }
 }

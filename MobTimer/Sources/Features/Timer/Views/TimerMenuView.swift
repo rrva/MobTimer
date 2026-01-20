@@ -15,7 +15,7 @@ struct TimerMenuView: View {
 
     private var mainView: some View {
         VStack(spacing: 16) {
-            if TimerViewModel.isTestingMode {
+            if viewModel.isTestingMode {
                 Text("TESTING MODE")
                     .font(.caption2)
                     .fontWeight(.semibold)

@@ -12,9 +12,13 @@ struct SettingsView: View {
     @State private var playSound: Bool = true
     @State private var speakAnnouncement: Bool = true
     @State private var announcementTemplate: String = ""
+    @State private var randomizeRotation: Bool = false
+    @State private var useSecondsForTesting: Bool = false
 
     private var isTestingMode: Bool {
-        TimerViewModel.isTestingMode
+        CommandLine.arguments.contains("--testing")
+            || CommandLine.arguments.contains("-testing")
+            || useSecondsForTesting
     }
 
     private static let buildTimestamp: String = {
@@ -80,6 +84,8 @@ struct SettingsView: View {
                             .frame(width: 100)
                         }
                     }
+
+                    Toggle("Randomize rotation order", isOn: $randomizeRotation)
                 }
                 .padding(.vertical, 4)
             }
@@ -135,6 +141,18 @@ struct SettingsView: View {
                 .padding(.vertical, 4)
             }
 
+            GroupBox("Developer") {
+                VStack(alignment: .leading, spacing: 8) {
+                    Toggle("Testing mode (use seconds)", isOn: $useSecondsForTesting)
+                    if useSecondsForTesting {
+                        Text("Timer uses seconds instead of minutes for faster testing")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.vertical, 4)
+            }
+
             Divider()
 
             HStack {
@@ -184,6 +202,8 @@ struct SettingsView: View {
         playSound = settings.playSoundOnRotation
         speakAnnouncement = settings.speakAnnouncement
         announcementTemplate = settings.announcementTemplate
+        randomizeRotation = settings.randomizeRotation
+        useSecondsForTesting = settings.useSecondsForTesting
     }
 
     private func saveSettings() {
@@ -196,7 +216,9 @@ struct SettingsView: View {
             speakAnnouncement: speakAnnouncement,
             announcementTemplate: announcementTemplate.isEmpty
                 ? TimerSettings.default.announcementTemplate
-                : announcementTemplate
+                : announcementTemplate,
+            randomizeRotation: randomizeRotation,
+            useSecondsForTesting: useSecondsForTesting
         )
         viewModel.updateSettings(newSettings)
     }
@@ -210,6 +232,8 @@ struct SettingsView: View {
         playSound = defaults.playSoundOnRotation
         speakAnnouncement = defaults.speakAnnouncement
         announcementTemplate = defaults.announcementTemplate
+        randomizeRotation = defaults.randomizeRotation
+        useSecondsForTesting = defaults.useSecondsForTesting
     }
 }
 

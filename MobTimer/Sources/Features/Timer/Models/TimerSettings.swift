@@ -8,6 +8,8 @@ struct TimerSettings: Codable, Sendable, Equatable {
     var playSoundOnRotation: Bool
     var speakAnnouncement: Bool
     var announcementTemplate: String
+    var randomizeRotation: Bool
+    var useSecondsForTesting: Bool
 
     init(
         rotationDurationMinutes: Int = 5,
@@ -16,7 +18,9 @@ struct TimerSettings: Codable, Sendable, Equatable {
         breakDurationMinutes: Int = 10,
         playSoundOnRotation: Bool = true,
         speakAnnouncement: Bool = true,
-        announcementTemplate: String = "Time's up! {name} is now driving."
+        announcementTemplate: String = "Time's up! {name} is now driving.",
+        randomizeRotation: Bool = false,
+        useSecondsForTesting: Bool = false
     ) {
         self.rotationDurationMinutes = rotationDurationMinutes
         self.rotationDurationSeconds = rotationDurationSeconds
@@ -25,6 +29,8 @@ struct TimerSettings: Codable, Sendable, Equatable {
         self.playSoundOnRotation = playSoundOnRotation
         self.speakAnnouncement = speakAnnouncement
         self.announcementTemplate = announcementTemplate
+        self.randomizeRotation = randomizeRotation
+        self.useSecondsForTesting = useSecondsForTesting
     }
 
     var effectiveRotationSeconds: Int {

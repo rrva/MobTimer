@@ -4,7 +4,6 @@ struct ParticipantRowView: View {
     let participant: Participant
     let isDriver: Bool
     let isEditing: Bool
-    var isDropTarget: Bool = false
     var canMoveUp: Bool = false
     var canMoveDown: Bool = false
     let onUpdate: (Participant) -> Void
@@ -16,6 +15,7 @@ struct ParticipantRowView: View {
     var onMoveDown: (() -> Void)?
 
     @State private var editedName: String = ""
+    @State private var editedEmail: String = ""
 
     var body: some View {
         HStack(spacing: 8) {
@@ -43,14 +43,18 @@ struct ParticipantRowView: View {
             }
 
             if isEditing {
-                TextField("Name", text: $editedName)
-                    .textFieldStyle(.plain)
-                    .onSubmit {
-                        commitEdit()
-                    }
-                    .onAppear {
-                        editedName = participant.name
-                    }
+                VStack(alignment: .leading, spacing: 4) {
+                    TextField("Name", text: $editedName)
+                        .textFieldStyle(.plain)
+                    TextField("Email", text: $editedEmail)
+                        .textFieldStyle(.plain)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .onAppear {
+                    editedName = participant.name
+                    editedEmail = participant.email
+                }
 
                 Button {
                     commitEdit()
@@ -116,15 +120,8 @@ struct ParticipantRowView: View {
         .padding(.horizontal, 8)
         .background(
             RoundedRectangle(cornerRadius: 6)
-                .fill(isDropTarget ? Color.accentColor.opacity(0.3) : (participant.isAway ? Color.secondary.opacity(0.1) : Color.clear))
+                .fill(participant.isAway ? Color.secondary.opacity(0.1) : Color.clear)
         )
-        .overlay(alignment: .top) {
-            if isDropTarget {
-                Rectangle()
-                    .fill(Color.accentColor)
-                    .frame(height: 3)
-            }
-        }
     }
 
     private func commitEdit() {
@@ -135,6 +132,7 @@ struct ParticipantRowView: View {
 
         var updated = participant
         updated.name = editedName.trimmingCharacters(in: .whitespaces)
+        updated.email = editedEmail.trimmingCharacters(in: .whitespaces)
         onUpdate(updated)
         onEndEditing()
     }

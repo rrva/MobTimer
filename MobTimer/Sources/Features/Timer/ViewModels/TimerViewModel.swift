@@ -11,6 +11,7 @@ final class TimerViewModel {
     var currentDriverIndex: Int = 0
     var rotationCount: Int = 0
     var showingSettings: Bool = false
+    var participantsWhoHaveDrivenThisRound: Set<UUID> = []
     var editingParticipantID: UUID?
     var showRotationFlash: Bool = false
     var showRotationWindow: Bool = false
@@ -21,8 +22,10 @@ final class TimerViewModel {
     private let speechService = SpeechService.shared
     private let persistenceService = PersistenceService.shared
 
-    static var isTestingMode: Bool {
-        CommandLine.arguments.contains("--testing") || CommandLine.arguments.contains("-testing")
+    var isTestingMode: Bool {
+        CommandLine.arguments.contains("--testing")
+            || CommandLine.arguments.contains("-testing")
+            || settings.useSecondsForTesting
     }
 
     var activeParticipants: [Participant] {
@@ -107,6 +110,13 @@ final class TimerViewModel {
         Task {
             try? await persistenceService.saveParticipants(participants)
         }
+        updateActiveMobstersFile()
+    }
+
+    private func updateActiveMobstersFile() {
+        Task {
+            try? await persistenceService.writeActiveMobsters(participants)
+        }
     }
 
     func saveSettings() {
@@ -115,8 +125,8 @@ final class TimerViewModel {
         }
     }
 
-    func addParticipant(name: String) {
-        let participant = Participant(name: name)
+    func addParticipant(name: String, email: String = "") {
+        let participant = Participant(name: name, email: email)
         participants.append(participant)
         saveParticipants()
     }
@@ -326,16 +336,48 @@ final class TimerViewModel {
 
     private func advanceToNextDriver() {
         guard !activeParticipants.isEmpty else { return }
-        currentDriverIndex = (currentDriverIndex + 1) % activeParticipants.count
+
+        if settings.randomizeRotation {
+            // Get participants who haven't driven this round
+            let eligible = activeParticipants.filter {
+                !participantsWhoHaveDrivenThisRound.contains($0.id)
+            }
+
+            if eligible.isEmpty {
+                // New round - reset tracking
+                participantsWhoHaveDrivenThisRound.removeAll()
+                // Pick random from all active
+                if let randomParticipant = activeParticipants.randomElement(),
+                   let index = activeParticipants.firstIndex(where: { $0.id == randomParticipant.id }) {
+                    currentDriverIndex = index
+                }
+            } else {
+                // Pick random from eligible
+                if let randomParticipant = eligible.randomElement(),
+                   let index = activeParticipants.firstIndex(where: { $0.id == randomParticipant.id }) {
+                    currentDriverIndex = index
+                }
+            }
+            if let driver = currentDriver {
+                participantsWhoHaveDrivenThisRound.insert(driver.id)
+            }
+        } else {
+            // Sequential (existing logic)
+            currentDriverIndex = (currentDriverIndex + 1) % activeParticipants.count
+        }
     }
 
     private func announceRotation() {
         guard let driver = currentDriver else { return }
 
         Task {
+            if settings.playSoundOnRotation {
+                await notificationService.playSound()
+            }
+
             await notificationService.sendRotationNotification(
                 driverName: driver.name,
-                playSound: settings.playSoundOnRotation
+                playSound: false  // We play sound directly above
             )
 
             if settings.speakAnnouncement {

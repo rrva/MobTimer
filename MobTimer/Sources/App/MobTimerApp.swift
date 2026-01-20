@@ -6,11 +6,21 @@ struct MobTimerApp: App {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismissWindow) private var dismissWindow
 
+    private var menuBarIcon: String {
+        switch viewModel.state {
+        case .stopped: return "person.3"
+        case .running: return "play.circle.fill"
+        case .paused: return "pause.circle.fill"
+        case .onBreak: return "cup.and.saucer.fill"
+        case .awaitingDriver: return "exclamationmark.circle.fill"
+        }
+    }
+
     var body: some Scene {
         MenuBarExtra {
             TimerMenuView(viewModel: viewModel)
         } label: {
-            Label(viewModel.statusText, systemImage: "person.3.fill")
+            Label(viewModel.statusText, systemImage: menuBarIcon)
         }
         .menuBarExtraStyle(.window)
 
