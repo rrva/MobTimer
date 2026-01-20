@@ -291,6 +291,13 @@ final class TimerViewModel {
         guard state == .running || state == .onBreak else { return }
 
         if remainingSeconds > 0 {
+            // Check for pre-rotation warning (only during running, not break)
+            if state == .running &&
+               settings.preRotationWarning &&
+               remainingSeconds == settings.preRotationWarningSeconds {
+                notificationService.playSound(settings.preRotationSound)
+            }
+
             remainingSeconds -= 1
         } else {
             handleTimerComplete()
@@ -373,7 +380,7 @@ final class TimerViewModel {
 
         Task {
             if settings.playSoundOnRotation {
-                await notificationService.playSound()
+                notificationService.playSound(settings.rotationSound)
             }
 
             await notificationService.sendRotationNotification(

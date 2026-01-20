@@ -10,6 +10,10 @@ struct SettingsView: View {
     @State private var breakAfterRotations: Int = 4
     @State private var breakDuration: Int = 10
     @State private var playSound: Bool = true
+    @State private var rotationSound: SoundEffect = .subtle
+    @State private var preRotationWarning: Bool = false
+    @State private var preRotationWarningSeconds: Int = 10
+    @State private var preRotationSound: SoundEffect = .glass
     @State private var speakAnnouncement: Bool = true
     @State private var announcementTemplate: String = ""
     @State private var randomizeRotation: Bool = false
@@ -125,6 +129,68 @@ struct SettingsView: View {
             GroupBox("Notifications") {
                 VStack(alignment: .leading, spacing: 8) {
                     Toggle("Play sound on rotation", isOn: $playSound)
+
+                    if playSound {
+                        HStack {
+                            Text("Sound:")
+                            Picker("", selection: $rotationSound) {
+                                ForEach(SoundEffect.allCases.filter { $0 != .none }, id: \.self) { sound in
+                                    Text(sound.rawValue).tag(sound)
+                                }
+                            }
+                            .labelsHidden()
+                            .frame(width: 120)
+
+                            Button {
+                                NotificationService.shared.playSound(rotationSound)
+                            } label: {
+                                Image(systemName: "speaker.wave.2")
+                            }
+                            .buttonStyle(.borderless)
+                            .help("Preview sound")
+                        }
+                    }
+
+                    Divider()
+
+                    Toggle("Pre-rotation warning", isOn: $preRotationWarning)
+
+                    if preRotationWarning {
+                        HStack {
+                            Text("Warn at:")
+                            Picker("", selection: $preRotationWarningSeconds) {
+                                ForEach([5, 10, 15, 20, 30], id: \.self) { secs in
+                                    Text("\(secs) sec").tag(secs)
+                                }
+                            }
+                            .labelsHidden()
+                            .frame(width: 80)
+                            Text("remaining")
+                                .foregroundStyle(.secondary)
+                        }
+
+                        HStack {
+                            Text("Warning sound:")
+                            Picker("", selection: $preRotationSound) {
+                                ForEach(SoundEffect.allCases.filter { $0 != .none }, id: \.self) { sound in
+                                    Text(sound.rawValue).tag(sound)
+                                }
+                            }
+                            .labelsHidden()
+                            .frame(width: 120)
+
+                            Button {
+                                NotificationService.shared.playSound(preRotationSound)
+                            } label: {
+                                Image(systemName: "speaker.wave.2")
+                            }
+                            .buttonStyle(.borderless)
+                            .help("Preview sound")
+                        }
+                    }
+
+                    Divider()
+
                     Toggle("Speak announcement", isOn: $speakAnnouncement)
 
                     if speakAnnouncement {
@@ -258,6 +324,10 @@ struct SettingsView: View {
         breakAfterRotations = settings.breakAfterRotations ?? 4
         breakDuration = settings.breakDurationMinutes
         playSound = settings.playSoundOnRotation
+        rotationSound = settings.rotationSound
+        preRotationWarning = settings.preRotationWarning
+        preRotationWarningSeconds = settings.preRotationWarningSeconds
+        preRotationSound = settings.preRotationSound
         speakAnnouncement = settings.speakAnnouncement
         announcementTemplate = settings.announcementTemplate
         randomizeRotation = settings.randomizeRotation
@@ -272,6 +342,10 @@ struct SettingsView: View {
             breakAfterRotations: enableBreaks ? breakAfterRotations : nil,
             breakDurationMinutes: breakDuration,
             playSoundOnRotation: playSound,
+            rotationSound: rotationSound,
+            preRotationWarning: preRotationWarning,
+            preRotationWarningSeconds: preRotationWarningSeconds,
+            preRotationSound: preRotationSound,
             speakAnnouncement: speakAnnouncement,
             announcementTemplate: announcementTemplate.isEmpty
                 ? TimerSettings.default.announcementTemplate
@@ -290,6 +364,10 @@ struct SettingsView: View {
         breakAfterRotations = defaults.breakAfterRotations ?? 4
         breakDuration = defaults.breakDurationMinutes
         playSound = defaults.playSoundOnRotation
+        rotationSound = defaults.rotationSound
+        preRotationWarning = defaults.preRotationWarning
+        preRotationWarningSeconds = defaults.preRotationWarningSeconds
+        preRotationSound = defaults.preRotationSound
         speakAnnouncement = defaults.speakAnnouncement
         announcementTemplate = defaults.announcementTemplate
         randomizeRotation = defaults.randomizeRotation

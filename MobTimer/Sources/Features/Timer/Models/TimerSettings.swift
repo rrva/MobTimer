@@ -6,6 +6,10 @@ struct TimerSettings: Codable, Sendable, Equatable {
     var breakAfterRotations: Int?
     var breakDurationMinutes: Int
     var playSoundOnRotation: Bool
+    var rotationSound: SoundEffect
+    var preRotationWarning: Bool
+    var preRotationWarningSeconds: Int
+    var preRotationSound: SoundEffect
     var speakAnnouncement: Bool
     var announcementTemplate: String
     var randomizeRotation: Bool
@@ -18,6 +22,10 @@ struct TimerSettings: Codable, Sendable, Equatable {
         breakAfterRotations: Int? = nil,
         breakDurationMinutes: Int = 10,
         playSoundOnRotation: Bool = true,
+        rotationSound: SoundEffect = .subtle,
+        preRotationWarning: Bool = false,
+        preRotationWarningSeconds: Int = 10,
+        preRotationSound: SoundEffect = .glass,
         speakAnnouncement: Bool = true,
         announcementTemplate: String = "Time's up! {name} is now driving.",
         randomizeRotation: Bool = false,
@@ -29,6 +37,10 @@ struct TimerSettings: Codable, Sendable, Equatable {
         self.breakAfterRotations = breakAfterRotations
         self.breakDurationMinutes = breakDurationMinutes
         self.playSoundOnRotation = playSoundOnRotation
+        self.rotationSound = rotationSound
+        self.preRotationWarning = preRotationWarning
+        self.preRotationWarningSeconds = preRotationWarningSeconds
+        self.preRotationSound = preRotationSound
         self.speakAnnouncement = speakAnnouncement
         self.announcementTemplate = announcementTemplate
         self.randomizeRotation = randomizeRotation

@@ -29,7 +29,7 @@ struct MobTimerApp: App {
         }
         .windowStyle(.plain)
         .windowResizability(.contentSize)
-        .defaultPosition(.center)
+        .defaultPosition(.top)
         .windowLevel(.floating)
         .onChange(of: viewModel.showRotationWindow) { _, shouldShow in
             if shouldShow {
