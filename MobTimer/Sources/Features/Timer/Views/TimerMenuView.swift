@@ -2,6 +2,10 @@ import SwiftUI
 
 struct TimerMenuView: View {
     @Bindable var viewModel: TimerViewModel
+    
+    private var theme: AppTheme {
+        viewModel.settings.theme
+    }
 
     var body: some View {
         Group {
@@ -20,10 +24,10 @@ struct TimerMenuView: View {
                 if viewModel.isTestingMode {
                     Text("TESTING MODE")
                         .font(.caption2.weight(.bold))
-                        .foregroundStyle(Theme.Colors.warning)
+                        .foregroundStyle(Theme.Colors.warning(for: theme))
                         .padding(.horizontal, 8)
                         .padding(.vertical, 2)
-                        .background(Theme.Colors.warning.opacity(0.1))
+                        .background(Theme.Colors.warning(for: theme).opacity(0.1))
                         .clipShape(Capsule())
                 }
 
@@ -35,7 +39,8 @@ struct TimerMenuView: View {
                     isOnBreak: viewModel.state == .onBreak,
                     isAwaitingDriver: viewModel.state == .awaitingDriver,
                     rotationsUntilBreak: viewModel.rotationsUntilBreak,
-                    showFlash: viewModel.showRotationFlash
+                    showFlash: viewModel.showRotationFlash,
+                    theme: theme
                 )
                 .frame(maxWidth: .infinity)
 
@@ -72,14 +77,14 @@ struct TimerMenuView: View {
     private var warningView: some View {
         HStack(spacing: 6) {
             Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(Theme.Colors.warning)
+                .foregroundStyle(Theme.Colors.warning(for: theme))
             Text("Add participants to start")
                 .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)
         }
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity)
-        .background(Theme.Colors.warning.opacity(0.1))
+        .background(Theme.Colors.warning(for: theme).opacity(0.1))
         .cornerRadius(8)
     }
 

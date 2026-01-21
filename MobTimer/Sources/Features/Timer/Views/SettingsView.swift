@@ -19,6 +19,7 @@ struct SettingsView: View {
     @State private var randomizeRotation: Bool = false
     @State private var useSecondsForTesting: Bool = false
     @State private var enableGitCoauthors: Bool = false
+    @State private var selectedTheme: AppTheme = .mint
 
     private var isTestingMode: Bool {
         CommandLine.arguments.contains("--testing")
@@ -208,6 +209,41 @@ struct SettingsView: View {
                 .padding(.vertical, 4)
             }
 
+            GroupBox("Appearance") {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("Theme:")
+                        Picker("", selection: $selectedTheme) {
+                            ForEach(AppTheme.allCases, id: \.self) { theme in
+                                Text(theme.displayName).tag(theme)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(width: 150)
+                    }
+                    
+                    // Theme Preview
+                    HStack(spacing: 8) {
+                        ForEach(AppTheme.allCases, id: \.self) { theme in
+                            Circle()
+                                .fill(Theme.Colors.primary(for: theme))
+                                .frame(width: 20, height: 20)
+                                .overlay(
+                                    Circle()
+                                        .strokeBorder(Color.primary.opacity(0.2), lineWidth: 1)
+                                )
+                                .onTapGesture {
+                                    selectedTheme = theme
+                                }
+                                .scaleEffect(selectedTheme == theme ? 1.2 : 1.0)
+                                .animation(.spring(response: 0.3), value: selectedTheme)
+                        }
+                    }
+                    .padding(.top, 4)
+                }
+                .padding(.vertical, 4)
+            }
+
             GroupBox("Integrations") {
                 VStack(alignment: .leading, spacing: 8) {
                     Toggle("Git co-authors", isOn: $enableGitCoauthors)
@@ -333,6 +369,7 @@ struct SettingsView: View {
         randomizeRotation = settings.randomizeRotation
         useSecondsForTesting = settings.useSecondsForTesting
         enableGitCoauthors = settings.enableGitCoauthors
+        selectedTheme = settings.theme
     }
 
     private func saveSettings() {
@@ -352,7 +389,8 @@ struct SettingsView: View {
                 : announcementTemplate,
             randomizeRotation: randomizeRotation,
             useSecondsForTesting: useSecondsForTesting,
-            enableGitCoauthors: enableGitCoauthors
+            enableGitCoauthors: enableGitCoauthors,
+            theme: selectedTheme
         )
         viewModel.updateSettings(newSettings)
     }
@@ -373,6 +411,7 @@ struct SettingsView: View {
         randomizeRotation = defaults.randomizeRotation
         useSecondsForTesting = defaults.useSecondsForTesting
         enableGitCoauthors = defaults.enableGitCoauthors
+        selectedTheme = defaults.theme
     }
 }
 

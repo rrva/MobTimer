@@ -3,6 +3,11 @@ import SwiftUI
 struct TimerControlsView: View {
     @Bindable var viewModel: TimerViewModel
     @Environment(\.dismiss) private var dismiss
+    
+    // Add theme property derived from view model settings for convenience
+    private var theme: AppTheme {
+        viewModel.settings.theme
+    }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -20,7 +25,7 @@ struct TimerControlsView: View {
                 if viewModel.pausedFromAwaitingDriver {
                     Text("Rotation Paused")
                         .font(.caption.weight(.medium))
-                        .foregroundStyle(Theme.Colors.warning)
+                        .foregroundStyle(Theme.Colors.warning(for: theme))
                 } else {
                     skipButton
                 }
@@ -29,12 +34,12 @@ struct TimerControlsView: View {
                 pauseButton
                 Text("On Break")
                     .font(.caption.weight(.medium))
-                    .foregroundStyle(Theme.Colors.warning)
+                    .foregroundStyle(Theme.Colors.warning(for: theme))
 
             case .awaitingDriver:
                 Text("Awaiting Driver")
                     .font(.caption.weight(.medium))
-                    .foregroundStyle(Theme.Colors.primary)
+                    .foregroundStyle(Theme.Colors.primary(for: theme))
                 stopButton
             }
         }
@@ -48,7 +53,7 @@ struct TimerControlsView: View {
             Label("Start", systemImage: "play.fill")
         }
         .buttonStyle(.borderedProminent)
-        .tint(Theme.Colors.primary)
+        .tint(Theme.Colors.primary(for: theme))
         .disabled(!viewModel.canStart)
     }
 
@@ -70,7 +75,7 @@ struct TimerControlsView: View {
             Label("Resume", systemImage: "play.fill")
         }
         .buttonStyle(.borderedProminent)
-        .tint(Theme.Colors.primary)
+        .tint(Theme.Colors.primary(for: theme))
     }
 
     private var stopButton: some View {
@@ -91,7 +96,7 @@ struct TimerControlsView: View {
                 .labelStyle(.iconOnly)
         }
         .buttonStyle(.bordered)
-        .tint(Theme.Colors.secondary)
+        .tint(Theme.Colors.secondary(for: theme))
     }
 }
 

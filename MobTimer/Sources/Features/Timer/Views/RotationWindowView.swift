@@ -5,6 +5,10 @@ struct RotationWindowView: View {
     @State private var isAnimating = false
     @State private var pulseReady = false
     @State private var showContent = false
+    
+    private var theme: AppTheme {
+        viewModel.settings.theme
+    }
 
     private let encouragements = [
         "Let's go! 🚀",
@@ -19,7 +23,7 @@ struct RotationWindowView: View {
     var body: some View {
         ZStack {
             // Animated gradient background
-            Theme.Gradients.rotationWindowBg
+            Theme.Gradients.rotationWindowBg(for: theme)
                 .overlay(
                     LinearGradient(
                         colors: [.clear, .white.opacity(0.1)],
@@ -36,7 +40,7 @@ struct RotationWindowView: View {
                         // Outer glow ring
                         Circle()
                             .stroke(
-                                Theme.Gradients.primary,
+                                Theme.Gradients.primary(for: theme),
                                 lineWidth: 3
                             )
                             .frame(width: 80, height: 80)
@@ -46,7 +50,7 @@ struct RotationWindowView: View {
 
                         Image(systemName: "arrow.triangle.2.circlepath")
                             .font(.system(size: 40, weight: .medium))
-                            .foregroundStyle(Theme.Gradients.primary)
+                            .foregroundStyle(Theme.Gradients.primary(for: theme))
                             .rotationEffect(.degrees(isAnimating ? 360 : 0))
                             .animation(.linear(duration: 2).repeatForever(autoreverses: false), value: isAnimating)
                     }
@@ -75,7 +79,7 @@ struct RotationWindowView: View {
                         VStack(spacing: 8) {
                             Text(driver.name)
                                 .font(.system(size: 32, weight: .bold, design: .rounded))
-                                .foregroundStyle(Theme.Gradients.primary)
+                                .foregroundStyle(Theme.Gradients.primary(for: theme))
 
                             Text("you're driving!")
                                 .font(.title3.weight(.medium))
@@ -91,7 +95,7 @@ struct RotationWindowView: View {
                             VStack(spacing: 6) {
                                 Image(systemName: "map.fill")
                                     .font(.title3)
-                                    .foregroundStyle(Theme.Colors.secondary)
+                                    .foregroundStyle(Theme.Colors.secondary(for: theme))
                                 Text(navigator.name)
                                     .font(.headline)
                                 Text("Navigator")
@@ -104,7 +108,7 @@ struct RotationWindowView: View {
                             VStack(spacing: 6) {
                                 Image(systemName: "clock.fill")
                                     .font(.title3)
-                                    .foregroundStyle(Theme.Colors.warning)
+                                    .foregroundStyle(Theme.Colors.warning(for: theme))
                                 Text(nextUp.name)
                                     .font(.headline)
                                 Text("Up Next")
@@ -131,12 +135,12 @@ struct RotationWindowView: View {
                 // Rotation info
                 HStack(spacing: 8) {
                     Image(systemName: "repeat")
-                        .foregroundStyle(Theme.Colors.primary)
+                        .foregroundStyle(Theme.Colors.primary(for: theme))
                     Text("Rotation \(viewModel.rotationCount)")
                     Text("•")
                         .foregroundStyle(.tertiary)
                     Image(systemName: "timer")
-                        .foregroundStyle(Theme.Colors.secondary)
+                        .foregroundStyle(Theme.Colors.secondary(for: theme))
                     Text(turnDurationText)
                 }
                 .font(.callout.weight(.medium))
@@ -159,11 +163,11 @@ struct RotationWindowView: View {
                     .padding(.vertical, 8)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(Theme.Colors.primary)
+                .tint(Theme.Colors.primary(for: theme))
                 .controlSize(.large)
                 .clipShape(Capsule())
                 .keyboardShortcut(.return, modifiers: [])
-                .shadow(color: Theme.Colors.primary.opacity(pulseReady ? 0.6 : 0.3), radius: pulseReady ? 20 : 8)
+                .shadow(color: Theme.Colors.primary(for: theme).opacity(pulseReady ? 0.6 : 0.3), radius: pulseReady ? 20 : 8)
                 .scaleEffect(pulseReady ? 1.05 : 1.0)
                 .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: pulseReady)
                 .scaleEffect(showContent ? 1 : 0.9)
