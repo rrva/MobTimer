@@ -27,6 +27,9 @@ enum SoundEffect: String, Codable, CaseIterable, Sendable {
 actor NotificationService {
     static let shared = NotificationService()
 
+    // Retain sound reference to prevent deallocation before playback completes
+    @MainActor private static var currentSound: NSSound?
+
     private init() {}
 
     func requestAuthorization() async -> Bool {
@@ -82,11 +85,11 @@ actor NotificationService {
     nonisolated func playSound(_ effect: SoundEffect) {
         guard let soundName = effect.systemSoundName else { return }
 
-        DispatchQueue.main.async {
+        Task { @MainActor in
             if let sound = NSSound(named: NSSound.Name(soundName)) {
+                NotificationService.currentSound = sound
                 sound.play()
             } else {
-                // Fallback to beep if sound not found
                 NSSound.beep()
             }
         }

@@ -147,8 +147,11 @@ final class TimerViewModel {
             let wasCurrentDriver = currentDriver?.id == participant.id
             participants[index] = participant
 
-            // If current driver is now away, rotate to next active
-            if wasCurrentDriver && participant.isAway {
+            // If all participants are now away, stop the timer
+            if activeParticipants.isEmpty && state != .stopped {
+                stop()
+            } else if wasCurrentDriver && participant.isAway {
+                // If current driver is now away, rotate to next active
                 advanceToNextDriver()
             }
 
@@ -249,6 +252,7 @@ final class TimerViewModel {
     }
 
     func skip() {
+        guard !activeParticipants.isEmpty else { return }
         rotateToNext()
     }
 
@@ -313,6 +317,12 @@ final class TimerViewModel {
     }
 
     private func rotateToNext() {
+        // Guard against no active participants
+        guard !activeParticipants.isEmpty else {
+            stop()
+            return
+        }
+
         rotationCount += 1
         advanceToNextDriver()
 
