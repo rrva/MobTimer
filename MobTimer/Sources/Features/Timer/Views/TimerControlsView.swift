@@ -19,8 +19,8 @@ struct TimerControlsView: View {
                 stopButton
                 if viewModel.pausedFromAwaitingDriver {
                     Text("Rotation Paused")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(Theme.Colors.warning)
                 } else {
                     skipButton
                 }
@@ -28,13 +28,13 @@ struct TimerControlsView: View {
             case .onBreak:
                 pauseButton
                 Text("On Break")
-                    .font(.caption)
-                    .foregroundStyle(.orange)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Theme.Colors.warning)
 
             case .awaitingDriver:
                 Text("Awaiting Driver")
-                    .font(.caption)
-                    .foregroundStyle(.green)
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Theme.Colors.primary)
                 stopButton
             }
         }
@@ -47,8 +47,9 @@ struct TimerControlsView: View {
         } label: {
             Label("Start", systemImage: "play.fill")
         }
-        .disabled(!viewModel.canStart)
         .buttonStyle(.borderedProminent)
+        .tint(Theme.Colors.primary)
+        .disabled(!viewModel.canStart)
     }
 
     private var pauseButton: some View {
@@ -56,6 +57,7 @@ struct TimerControlsView: View {
             viewModel.pause()
         } label: {
             Label("Pause", systemImage: "pause.fill")
+                .labelStyle(.iconOnly)
         }
         .buttonStyle(.bordered)
     }
@@ -68,6 +70,7 @@ struct TimerControlsView: View {
             Label("Resume", systemImage: "play.fill")
         }
         .buttonStyle(.borderedProminent)
+        .tint(Theme.Colors.primary)
     }
 
     private var stopButton: some View {
@@ -75,6 +78,7 @@ struct TimerControlsView: View {
             viewModel.stop()
         } label: {
             Label("Stop", systemImage: "stop.fill")
+                .labelStyle(.iconOnly)
         }
         .buttonStyle(.bordered)
     }
@@ -84,8 +88,10 @@ struct TimerControlsView: View {
             viewModel.skip()
         } label: {
             Label("Skip", systemImage: "forward.fill")
+                .labelStyle(.iconOnly)
         }
         .buttonStyle(.bordered)
+        .tint(Theme.Colors.secondary)
     }
 }
 

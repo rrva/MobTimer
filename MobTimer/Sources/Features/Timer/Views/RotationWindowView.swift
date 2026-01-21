@@ -19,16 +19,15 @@ struct RotationWindowView: View {
     var body: some View {
         ZStack {
             // Animated gradient background
-            LinearGradient(
-                colors: [
-                    Color.green.opacity(0.15),
-                    Color.blue.opacity(0.1),
-                    Color.purple.opacity(0.05)
-                ],
-                startPoint: isAnimating ? .topLeading : .bottomTrailing,
-                endPoint: isAnimating ? .bottomTrailing : .topLeading
-            )
-            .animation(.easeInOut(duration: 3).repeatForever(autoreverses: true), value: isAnimating)
+            Theme.Gradients.rotationWindowBg
+                .overlay(
+                    LinearGradient(
+                        colors: [.clear, .white.opacity(0.1)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .animation(.easeInOut(duration: 3).repeatForever(autoreverses: true), value: isAnimating)
 
             VStack(spacing: 28) {
                 // Animated header
@@ -37,11 +36,7 @@ struct RotationWindowView: View {
                         // Outer glow ring
                         Circle()
                             .stroke(
-                                LinearGradient(
-                                    colors: [.green, .mint, .green],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                ),
+                                Theme.Gradients.primary,
                                 lineWidth: 3
                             )
                             .frame(width: 80, height: 80)
@@ -51,13 +46,7 @@ struct RotationWindowView: View {
 
                         Image(systemName: "arrow.triangle.2.circlepath")
                             .font(.system(size: 40, weight: .medium))
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [.green, .mint],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
+                            .foregroundStyle(Theme.Gradients.primary)
                             .rotationEffect(.degrees(isAnimating ? 360 : 0))
                             .animation(.linear(duration: 2).repeatForever(autoreverses: false), value: isAnimating)
                     }
@@ -86,13 +75,7 @@ struct RotationWindowView: View {
                         VStack(spacing: 8) {
                             Text(driver.name)
                                 .font(.system(size: 32, weight: .bold, design: .rounded))
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        colors: [.green, .mint],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
+                                .foregroundStyle(Theme.Gradients.primary)
 
                             Text("you're driving!")
                                 .font(.title3.weight(.medium))
@@ -105,10 +88,10 @@ struct RotationWindowView: View {
 
                     HStack(spacing: 32) {
                         if let navigator = viewModel.currentNavigator {
-                            VStack(spacing: 4) {
+                            VStack(spacing: 6) {
                                 Image(systemName: "map.fill")
                                     .font(.title3)
-                                    .foregroundStyle(.blue)
+                                    .foregroundStyle(Theme.Colors.secondary)
                                 Text(navigator.name)
                                     .font(.headline)
                                 Text("Navigator")
@@ -118,10 +101,10 @@ struct RotationWindowView: View {
                         }
 
                         if let nextUp = viewModel.nextDriver {
-                            VStack(spacing: 4) {
+                            VStack(spacing: 6) {
                                 Image(systemName: "clock.fill")
                                     .font(.title3)
-                                    .foregroundStyle(.orange)
+                                    .foregroundStyle(Theme.Colors.warning)
                                 Text(nextUp.name)
                                     .font(.headline)
                                 Text("Up Next")
@@ -134,9 +117,13 @@ struct RotationWindowView: View {
                 .padding(24)
                 .frame(maxWidth: .infinity)
                 .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(.ultraThinMaterial)
-                        .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
+                    RoundedRectangle(cornerRadius: 24)
+                        .fill(.regularMaterial)
+                        .shadow(color: .black.opacity(0.1), radius: 15, y: 5)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 24)
+                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                        )
                 )
                 .scaleEffect(showContent ? 1 : 0.9)
                 .opacity(showContent ? 1 : 0)
@@ -144,12 +131,12 @@ struct RotationWindowView: View {
                 // Rotation info
                 HStack(spacing: 8) {
                     Image(systemName: "repeat")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(Theme.Colors.primary)
                     Text("Rotation \(viewModel.rotationCount)")
                     Text("•")
                         .foregroundStyle(.tertiary)
                     Image(systemName: "timer")
-                        .foregroundStyle(.blue)
+                        .foregroundStyle(Theme.Colors.secondary)
                     Text(turnDurationText)
                 }
                 .font(.callout.weight(.medium))
@@ -164,20 +151,21 @@ struct RotationWindowView: View {
                     viewModel.acknowledgeRotation()
                 } label: {
                     HStack(spacing: 8) {
-                        Image(systemName: "keyboard")
+                        Image(systemName: "steeringwheel")
                         Text("Ready to Drive!")
                     }
                     .font(.headline)
                     .frame(minWidth: 200)
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 8)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.green)
+                .tint(Theme.Colors.primary)
                 .controlSize(.large)
+                .clipShape(Capsule())
                 .keyboardShortcut(.return, modifiers: [])
-                .shadow(color: .green.opacity(pulseReady ? 0.5 : 0.2), radius: pulseReady ? 15 : 5)
-                .scaleEffect(pulseReady ? 1.02 : 1.0)
-                .animation(.easeInOut(duration: 1).repeatForever(autoreverses: true), value: pulseReady)
+                .shadow(color: Theme.Colors.primary.opacity(pulseReady ? 0.6 : 0.3), radius: pulseReady ? 20 : 8)
+                .scaleEffect(pulseReady ? 1.05 : 1.0)
+                .animation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true), value: pulseReady)
                 .scaleEffect(showContent ? 1 : 0.9)
                 .opacity(showContent ? 1 : 0)
 
@@ -213,9 +201,9 @@ struct RotationWindowView: View {
             .padding(.top, 32)
             .padding(.bottom, 24)
         }
-        .frame(width: 420)
+        .frame(width: 440)
         .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 20))
+        .clipShape(RoundedRectangle(cornerRadius: 24))
         .overlay(alignment: .topTrailing) {
             // Dismiss button (top-right corner)
             Button {
@@ -227,7 +215,7 @@ struct RotationWindowView: View {
                     .foregroundStyle(.secondary)
             }
             .buttonStyle(.plain)
-            .padding(12)
+            .padding(16)
             .keyboardShortcut(.escape, modifiers: [])
             .help("Dismiss and pause (Esc)")
         }
@@ -235,7 +223,7 @@ struct RotationWindowView: View {
             currentEncouragement = encouragements.randomElement() ?? encouragements[0]
             isAnimating = true
             pulseReady = true
-            withAnimation(.easeOut(duration: 0.4)) {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                 showContent = true
             }
         }

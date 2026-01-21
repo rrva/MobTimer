@@ -10,58 +10,64 @@ struct CircularProgressView: View {
     let rotationsUntilBreak: Int?
     var showFlash: Bool = false
 
-    private let lineWidth: CGFloat = 8
-    private let size: CGFloat = 120
+    private let lineWidth: CGFloat = 12
+    private let size: CGFloat = 140
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 12) {
             ZStack {
+                // Background Track
                 Circle()
-                    .stroke(Color.secondary.opacity(0.2), lineWidth: lineWidth)
+                    .stroke(Color.secondary.opacity(0.1), lineWidth: lineWidth)
 
+                // Progress Fill
                 Circle()
                     .trim(from: 0, to: progress)
                     .stroke(
-                        progressColor,
+                        progressGradient,
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                     )
                     .rotationEffect(.degrees(-90))
+                    .shadow(color: progressColor.opacity(0.3), radius: 5)
                     .animation(.linear(duration: 0.3), value: progress)
 
+                // Flash Effects
                 if showFlash {
                     Circle()
-                        .fill(Color.green.opacity(0.3))
+                        .fill(Theme.Colors.primary.opacity(0.3))
                         .scaleEffect(showFlash ? 1.2 : 0.8)
                         .animation(.easeOut(duration: 0.4), value: showFlash)
 
                     Circle()
-                        .stroke(Color.green, lineWidth: 3)
+                        .stroke(Theme.Colors.primary, lineWidth: 3)
                         .scaleEffect(showFlash ? 1.3 : 1.0)
                         .opacity(showFlash ? 0.8 : 0)
                         .animation(.easeOut(duration: 0.6), value: showFlash)
                 }
 
+                // Center Text
                 VStack(spacing: 4) {
                     if showFlash {
                         Text("ROTATE!")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundStyle(.green)
+                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .foregroundStyle(Theme.Colors.primary)
                             .transition(.scale.combined(with: .opacity))
                     } else if isAwaitingDriver {
                         Text("ROTATE")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundStyle(.green)
+                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .foregroundStyle(Theme.Colors.primary)
                         Text("AWAITING")
-                            .font(.caption)
+                            .font(.caption.weight(.medium))
                             .foregroundStyle(.secondary)
                     } else {
                         Text(remainingText)
-                            .font(.system(size: 24, weight: .semibold, design: .monospaced))
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .contentTransition(.numericText(value: 0)) // Note: Requires value plumbing for full effect, simple text for now
 
                         if isOnBreak {
                             Text("BREAK")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(Theme.Colors.warning)
                         }
                     }
                 }
@@ -69,24 +75,25 @@ struct CircularProgressView: View {
             }
             .frame(width: size, height: size)
 
+            // Info below circle (Cleaner layout)
             if !isOnBreak {
-                VStack(spacing: 4) {
+                VStack(spacing: 6) {
                     if let driver = driverName {
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(.green)
-                                .frame(width: 8, height: 8)
-                            Text("Driver: \(driver)")
-                                .font(.callout)
+                        HStack(spacing: 6) {
+                            Image(systemName: "steeringwheel")
+                                .font(.caption)
+                                .foregroundStyle(Theme.Colors.primary)
+                            Text(driver)
+                                .font(.callout.weight(.medium))
                         }
                     }
 
                     if let navigator = navigatorName {
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(.blue)
-                                .frame(width: 8, height: 8)
-                            Text("Navigator: \(navigator)")
+                        HStack(spacing: 6) {
+                            Image(systemName: "map")
+                                .font(.caption)
+                                .foregroundStyle(Theme.Colors.secondary)
+                            Text(navigator)
                                 .font(.callout)
                                 .foregroundStyle(.secondary)
                         }
@@ -94,25 +101,45 @@ struct CircularProgressView: View {
                 }
             }
 
+            // Next Break Indicator
             if let rotations = rotationsUntilBreak, rotations > 0 {
-                Text("Rotation \(rotations) until break")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                HStack(spacing: 4) {
+                    Image(systemName: "cup.and.saucer.fill")
+                        .font(.caption2)
+                    Text("Break in \(rotations)")
+                        .font(.caption2.weight(.medium))
+                }
+                .foregroundStyle(.tertiary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 2)
+                .background(Capsule().fill(.quaternary))
             }
         }
     }
 
     private var progressColor: Color {
         if isAwaitingDriver {
-            return .green
+            return Theme.Colors.primary
         } else if isOnBreak {
-            return .orange
+            return Theme.Colors.warning
         } else if progress > 0.9 {
-            return .red
+            return Theme.Colors.destructive
         } else if progress > 0.7 {
-            return .yellow
+            return Theme.Colors.warning
         } else {
-            return .accentColor
+            return Theme.Colors.primary
+        }
+    }
+    
+    private var progressGradient: AngularGradient {
+        if isAwaitingDriver {
+            return Theme.Gradients.primaryAngular
+        } else if isOnBreak {
+            return AngularGradient(gradient: Gradient(colors: [.orange, .yellow, .orange]), center: .center)
+        } else if progress > 0.9 {
+            return AngularGradient(gradient: Gradient(colors: [.red, .orange, .red]), center: .center)
+        } else {
+            return Theme.Gradients.primaryAngular
         }
     }
 }
